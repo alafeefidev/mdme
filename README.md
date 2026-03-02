@@ -2,6 +2,12 @@
 
 A simple cli tool to generate code and text blocks for viewing, sharing with people or with an LLM.
 
+## Installation
+
+```bash
+go install github.com/alafeefidev/mdme/cmd/mdme@latest
+```
+
 ## Usage
 
 ```bash
@@ -21,6 +27,8 @@ mdme /examples -v
 ## Flags
 - `-s, --suppress` suppress console output, only copy to clipboard
 - `-v, --verbose` enable debug logging
+- `-d, --depth` max directories depth (0 = unlimited)
+- `--max-files` max number of files to process
 
 ## Planned Features
 - Flags to overwrite default ignore list

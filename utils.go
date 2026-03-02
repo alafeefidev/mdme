@@ -3,6 +3,7 @@ package mdme
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 )
@@ -37,4 +38,13 @@ func IsTextFile(path string) ([]byte, error) {
 		return nil, nil
 	}
 	return data, nil
+}
+
+func IsHomeDir(absPath string) bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+
+	return strings.EqualFold(absPath, filepath.Clean(home))
 }

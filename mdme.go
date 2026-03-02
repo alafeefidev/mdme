@@ -1,10 +1,12 @@
 package mdme
 
 import (
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type File struct {
@@ -12,7 +14,7 @@ type File struct {
 	Content []byte
 }
 
-func ListFiles(root string) ([]File, error) {
+func ListFiles(root string, maxDepth, maxFiles int) ([]File, error) {
 	var files []File
 
 	conf := &IgnoreConfig{
@@ -22,13 +24,27 @@ func ListFiles(root string) ([]File, error) {
 		mdignore:   FromFile(filepath.Join(root, ".mdignore")),
 	}
 
+	rootDepth := strings.Count(filepath.Clean(root), string(os.PathSeparator))
+
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			slog.Warn("could not traverse into %s: %v\n", path, err)
 			return nil // Skip instead of stopping
 		}
 
+		if len(files) >= maxFiles {
+			return fmt.Errorf("too many files: limit is %d", maxFiles)
+		}
+
 		rel, err := filepath.Rel(root, path)
+
+		if maxDepth > 0 {
+			currentDepth := strings.Count(filepath.Clean(path), string(os.PathSeparator)) - rootDepth
+			if d.IsDir() && currentDepth >= maxDepth {
+				slog.Debug("Skipping", "directory", rel)
+				return filepath.SkipDir
+			}
+		}
 
 		slog.Debug("Processing", "Path", rel)
 		

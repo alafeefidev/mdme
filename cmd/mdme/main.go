@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alafeefidev/mdme"
@@ -22,11 +23,16 @@ func main() {
 func run() error {
 	var verbose bool
 	var suppress bool
+	var maxDepth int
+	var maxFiles int
 
 	flag.BoolVar(&verbose, "verbose", false, "enable debug logging")
 	flag.BoolVar(&verbose, "v", false, "alias for -verbose")
 	flag.BoolVar(&suppress, "suppress", false, "suppress console output, only copy to clipboard")
 	flag.BoolVar(&suppress, "s", false, "alias for -suppress")
+	flag.IntVar(&maxDepth, "depth", 50, "max directories depth (0 = unlimited)")
+	flag.IntVar(&maxDepth, "d", 100, "alias for -depth")
+	flag.IntVar(&maxFiles, "max-files", 50, "max number of files to process")
 
 	// Current directory and no path provided, immediately a flag
 	path := "."
@@ -61,7 +67,13 @@ func run() error {
 		path = cwd
 	}
 
-	files, err := mdme.ListFiles(path)
+	abs, _ := filepath.Abs(path)
+	if mdme.IsHomeDir(abs) {
+		fmt.Fprintf(os.Stderr,
+			 "warning: scanning home directory %s, this will take a while\n it is recommended to use -d to limit depth or choose a directory\n", abs)
+	}
+
+	files, err := mdme.ListFiles(path, maxDepth, maxFiles)
 	if err != nil {
 		return fmt.Errorf("Error parsing files: %v", mdme.ErrorMsg(err))
 	}

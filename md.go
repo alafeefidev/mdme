@@ -29,7 +29,7 @@ func ToMD(files []File, root string) (string, error) {
 
 		sb.WriteString("```")
 		sb.WriteString(ext)
-		sb.WriteString(" - ")
+		sb.WriteString(" ")
 		sb.WriteString(rel)
 		sb.WriteString("\n")
 		sb.Write(content)
