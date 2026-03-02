@@ -2,26 +2,22 @@ package mdme
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"strings"
 )
 
-func ToMD(files []string) (string, error) {
+func ToMD(files []File, root string) (string, error) {
 	var sb strings.Builder
 
 	for i, file := range files {
-		content, err := os.ReadFile(file)
-		if err != nil {
-			//TODO log just skip the file if an error occured
-			continue
-		}
+		rel, _ := filepath.Rel(root, file.Path)
+		content := file.Content
 		if len(content) == 0 {
 			//TODO log if content empty
 			continue
 		}
 
-		ext := strings.TrimPrefix(filepath.Ext(file), ".")
+		ext := strings.TrimPrefix(filepath.Ext(file.Path), ".")
 		if ext == "" {
 			ext = "text"
 		}
@@ -32,6 +28,8 @@ func ToMD(files []string) (string, error) {
 
 		sb.WriteString("```")
 		sb.WriteString(ext)
+		sb.WriteString(" - ")
+		sb.WriteString(rel)
 		sb.WriteString("\n")
 		sb.Write(content)
 		if content[len(content)-1] != '\n' {

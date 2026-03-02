@@ -2,21 +2,38 @@ package mdme
 
 import (
 	"io/fs"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
 
+type File struct {
+	Path    string
+	Content []byte
+}
 
-func ListFiles(root string) ([]string, error) {
-	var files []string
+func ListFiles(root string) ([]File, error) {
+	var files []File
+
+	conf := &IgnoreConfig{
+		defaults:   defaultsIgnore,
+		hiddenDirs: true,
+		gitignore:  FromFile(filepath.Join(root, ".gitignore")),
+		mdignore:   FromFile(filepath.Join(root, ".mdignore")),
+	}
+
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			log.Printf("could not traverse into %s: %v\n", path, err)
+			slog.Warn("could not traverse into %s: %v\n", path, err)
 			return nil // Skip instead of stopping
 		}
 
-		if DefaultIgnoreConfig.Ignore(path, d.IsDir()) {
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return nil
+		}
+
+		if conf.Ignore(rel, d.IsDir()) {
 			// Skip directory and sub-directories and files
 			if d.IsDir() {
 				return filepath.SkipDir
@@ -24,23 +41,24 @@ func ListFiles(root string) ([]string, error) {
 			// Skip file
 			return nil
 		}
-		if ok, err := IsTextFile(path); ok && !d.IsDir(){
-			files = append(files, path)
-		
-		} else if err != nil {
-			return nil
+
+		// Check if it is a proper text file and not a binary
+		if !d.IsDir() {
+			if data, _ := IsTextFile(path); data != nil {
+				files = append(files, File{
+					Path:    path,
+					Content: data,
+				})
+			}
 		}
+
 		return nil
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
-	return files, nil
+	return files, err
 }
 
-func IsDir(path string) (bool, error){
+func IsDir(path string) (bool, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return false, err
