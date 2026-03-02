@@ -19,6 +19,7 @@ func main() {
 	}
 }
 
+// Skip by extension like pdf files
 // TODO generate md file with base root folder name
 func run() error {
 	var verbose bool
