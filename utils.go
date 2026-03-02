@@ -27,7 +27,7 @@ func IsTextFile(path string) ([]byte, error) {
 
 	n, err := f.Read(data)
 	if n == 0 {
-		return data, nil
+		return nil, nil
 	}
 	if err != nil && err != io.EOF {
 		return nil, err

@@ -37,8 +37,8 @@ type IgnoreConfig struct {
 	mdignore   *gignore.GitIgnore
 }
 
-func (im *IgnoreConfig) Ignore(rel string, isDir bool) bool {
-	name := filepath.Base(rel)
+func (im *IgnoreConfig) Ignore(path, rel string, isDir bool) bool {
+	name := filepath.Base(path)
 
 	if _, ok := im.defaults[name]; ok {
 		return true

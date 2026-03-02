@@ -72,6 +72,7 @@ func run() error {
 	}
 
 	// Raise error only if output is supressed, else ignore
+	md = strings.ReplaceAll(md, "\x00", "") // To fix string with NUL passed error for UTF16PtrFromString, hmmm
 	if err := glippy.Set(md); err != nil {
 		if suppress {
 			return fmt.Errorf("Error pasting output to clipboard: %v", mdme.ErrorMsg(err))

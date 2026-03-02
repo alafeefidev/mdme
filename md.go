@@ -12,6 +12,7 @@ func ToMD(files []File, root string) (string, error) {
 	for i, file := range files {
 		rel, _ := filepath.Rel(root, file.Path)
 		content := file.Content
+
 		if len(content) == 0 {
 			//TODO log if content empty
 			continue

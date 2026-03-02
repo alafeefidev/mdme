@@ -29,12 +29,17 @@ func ListFiles(root string) ([]File, error) {
 		}
 
 		rel, err := filepath.Rel(root, path)
+
+		slog.Debug("Processing", "Path", rel)
+		
 		if err != nil {
+			slog.Debug("Skipping", "path", rel)
 			return nil
 		}
 
-		if conf.Ignore(rel, d.IsDir()) {
+		if conf.Ignore(path, rel, d.IsDir()) {
 			// Skip directory and sub-directories and files
+			slog.Debug("Skipping", "path", rel)
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
@@ -51,7 +56,6 @@ func ListFiles(root string) ([]File, error) {
 				})
 			}
 		}
-
 		return nil
 	})
 
