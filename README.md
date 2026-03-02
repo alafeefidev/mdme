@@ -30,8 +30,12 @@ mdme /examples -v
 - `-d, --depth` max directories depth (0 = unlimited)
 - `--max-files` max number of files to process
 
+## Features
+- Support for converting files in chosen directory to md code representations
+- Ignores files in .gitignore. With support for .mdignore for files to ignore only from mdme
+
 ## Planned Features
-- Flags to overwrite default ignore list
+- Flags to overwrite default ignore list, ignore .gitignore, adding regex matching for ignoring files.
 - To work on files too, now it only accepts directories
 - Print to an .md file
 - and more...
