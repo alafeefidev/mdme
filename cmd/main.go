@@ -8,7 +8,7 @@ import (
 
 	"github.com/alafeefidev/mdme"
 )
-
+//TODO add copy to keyboard
 func main() {
 
 	// Current directory and no path provided, immediately a flag
