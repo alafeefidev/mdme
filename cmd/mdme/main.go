@@ -1,4 +1,4 @@
-package main
+ package main
 
 import (
 	"flag"
@@ -32,8 +32,8 @@ func run() error {
 	flag.BoolVar(&suppress, "suppress", false, "suppress console output, only copy to clipboard")
 	flag.BoolVar(&suppress, "s", false, "alias for -suppress")
 	flag.IntVar(&maxDepth, "depth", 50, "max directories depth (0 = unlimited)")
-	flag.IntVar(&maxDepth, "d", 100, "alias for -depth")
-	flag.IntVar(&maxFiles, "max-files", 50, "max number of files to process")
+	flag.IntVar(&maxDepth, "d", 50, "alias for -depth")
+	flag.IntVar(&maxFiles, "max-files", 100, "max number of files to process")
 
 	// Current directory and no path provided, immediately a flag
 	path := "."
