@@ -37,6 +37,10 @@ func ListFiles(root string, maxDepth, maxFiles int) ([]File, error) {
 		}
 
 		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			slog.Debug("Skipping", "path", rel)
+			return nil
+		}
 
 		if maxDepth > 0 {
 			currentDepth := strings.Count(filepath.Clean(path), string(os.PathSeparator)) - rootDepth
@@ -47,11 +51,6 @@ func ListFiles(root string, maxDepth, maxFiles int) ([]File, error) {
 		}
 
 		slog.Debug("Processing", "Path", rel)
-		
-		if err != nil {
-			slog.Debug("Skipping", "path", rel)
-			return nil
-		}
 
 		if conf.Ignore(path, rel, d.IsDir()) {
 			// Skip directory and sub-directories and files
@@ -63,12 +62,12 @@ func ListFiles(root string, maxDepth, maxFiles int) ([]File, error) {
 			return nil
 		}
 
-		// Check if it is a proper text file and not a binary
 		if !d.IsDir() {
-			if data, _ := IsTextFile(path); data != nil {
+			content, err := readTextFile(path)
+			if err == nil && content != nil {
 				files = append(files, File{
 					Path:    path,
-					Content: data,
+					Content: content,
 				})
 			}
 		}

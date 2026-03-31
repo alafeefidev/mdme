@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	gignore "github.com/sabhiram/go-gitignore"
+	gitignore "github.com/sabhiram/go-gitignore"
 )
 
 var defaultsIgnore = map[string]struct{}{
@@ -30,11 +30,10 @@ var defaultsIgnore = map[string]struct{}{
 }
 
 type IgnoreConfig struct {
-	//TODO gitignore, and custom ignore file .mdignore
 	defaults   map[string]struct{}
 	hiddenDirs bool // Skip hidden directories, dotted.
-	gitignore  *gignore.GitIgnore
-	mdignore   *gignore.GitIgnore
+	gitignore  *gitignore.GitIgnore
+	mdignore   *gitignore.GitIgnore
 }
 
 func (im *IgnoreConfig) Ignore(path, rel string, isDir bool) bool {

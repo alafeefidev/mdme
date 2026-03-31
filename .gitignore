@@ -1,2 +1,3 @@
 *.exe
+examples/
 gitignore_REDUNDANT.go

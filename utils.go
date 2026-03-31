@@ -1,10 +1,11 @@
 package mdme
 
 import (
+	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 )
 
@@ -18,15 +19,15 @@ func ErrorMsg(err error) string {
 	return msg
 }
 
-func IsTextFile(path string) ([]byte, error) {
-	data := make([]byte, 512)
+func readTextFile(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	n, err := f.Read(data)
+	buf := make([]byte, 512)
+	n, err := f.Read(buf)
 	if n == 0 {
 		return nil, nil
 	}
@@ -34,10 +35,33 @@ func IsTextFile(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	if slices.Contains(data[:n], 0) {
-		return nil, nil
+	buf = buf[:n]
+
+	for _, b := range buf {
+		if b == 0 {
+			return nil, fmt.Errorf("file is binary: %s", path)
+		}
 	}
-	return data, nil
+
+	contentType := http.DetectContentType(buf)
+	if !strings.Contains(contentType, "text/") {
+		return nil, fmt.Errorf("file is binary: %s", path)
+	}
+
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+
+	return io.ReadAll(f)
+}
+
+func CreateMDFile(name, path, MD string) error {
+	mdName := name
+	if !strings.HasSuffix(mdName, ".md") {
+		mdName = mdName + ".md"
+	}
+	fPath := filepath.Join(path, mdName)
+	return os.WriteFile(fPath, []byte(MD), 0644)
 }
 
 func IsHomeDir(absPath string) bool {
@@ -48,3 +72,4 @@ func IsHomeDir(absPath string) bool {
 
 	return strings.EqualFold(absPath, filepath.Clean(home))
 }
+
